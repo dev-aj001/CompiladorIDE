@@ -124,8 +124,9 @@ falla { return token(yytext(), "ESC_FALLA", yyline, yycolumn); }
 aspersor { return token(yytext(), "ASPERSOR", yyline, yycolumn); }
 
 /* Estructura si */
-si |
-sino { return token(yytext(), "ESTRUCTURA_SI", yyline, yycolumn); }
+si { return token(yytext(), "ESTRUCTURA_SI", yyline, yycolumn); }
+
+sino { return token(yytext(), "ESTRUCTURA_SINO", yyline, yycolumn); }
 
 /* Operadores lógicos */
 "&" |
