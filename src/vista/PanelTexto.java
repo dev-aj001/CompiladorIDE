@@ -369,6 +369,14 @@ public class PanelTexto extends javax.swing.JPanel {
     private void syntacticAalysis() {
         Grammar gramatica = new Grammar(tokens, errors);
         
+        gramatica.group("VALOR", "(NUMERO | IDENTIFICADOR)", true);
+        gramatica.group("VARIABLE", "TIPO_DATO IDENTIFICADOR OP_ASIG VALOR", true, identProd);
+        
+        gramatica.group("VARIABLE", "TIPO_DATO OP_ASIG VALOR", true,
+                1, " × Error sintáctico {}: falta el identificador en la declaración de variable [#, %]");
+
+        gramatica.finalLineColumn();
+        
         gramatica.show();
     }
 
