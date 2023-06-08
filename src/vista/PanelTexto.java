@@ -383,23 +383,60 @@ public class PanelTexto extends javax.swing.JPanel {
         gramatica.delete(new String[]{"ERROR_2"}, 2, "Error Lexico {}: identificador mal definido en la linea [#, %]");
         gramatica.delete(new String[]{"ERROR_1"}, 3, "Error Lexico {}: numero mal definido en la linea [#, %]");
         
-         //Agrupacion de valores
-        gramatica.group("Valor", "( NUMERO_ENTERO | NUMERO_REAL | VALOR_BOOLEANO | CADENA_TEXTO | IDENTIFICADOR)", true);
+        gramatica.group("Condicion", "(Valor | datosaspersor) (OP_RELACIONAL Valor)+", true);
         
-        //Declaracion de variables
-        gramatica.group("Variable", "TIPO_DATO IDENTIFICADOR OP_ASIG (Valor | IDENTIFICADOR)", true);
+        gramatica.group("numeroaspersor", "ASPERSOR CORCHETE_A NUMERO_ENTERO CORCHETE_C ", true);
+        gramatica.group("numeroaspersor", " ASPERSOR CORCHETE_A NUMERO_ENTERO ", true, 5, "Error sintáctico {}: Hace falta un corchete [#, %]");
+        gramatica.group("numeroaspersor", " ASPERSOR  NUMERO_ENTERO CORCHETE_C", true, 5, "Error sintáctico {}: Hace falta un corchete [#, %]");
+        gramatica.group("numeroaspersor", " ASPERSOR  CORCHETE_A CORCHETE_C", true, 5, "Error sintáctico {}: Hace falta un valor [#, %]");
+        gramatica.group("si", "ESTRUCTURA_SI PARENTESIS_A Condicion PARENTESIS_C LLAVE_A", true, 55, "ERROR SI");
+         //Agrupacion de valores
+        gramatica.group("Valor", "( NUMERO_ENTERO | NUMERO_REAL | VALOR_BOOLEANO | CADENA_TEXTO IDENTIFICADOR)", true);
+        
+                //Agrupacion de operaciones aritmeticas
+        gramatica.group("OpAritmetica", "VALOR OpAritmetico Valor", true);
 
-        gramatica.group("Variable", "TIPO_DATO OP_ASIG (Valor | IDENTIFICADOR)", true, 2, "Error sintáctico {}: No hay identificador  en la declaración [#, %]");
+
+        //Declaracion de variables
+        gramatica.group("Variable", "TIPO_DATO IDENTIFICADOR OP_ASIG Valor", true);
+
+        gramatica.group("Variable", "TIPO_DATO OP_ASIG Valor", true, 2, "Error sintáctico {}: No hay identificador  en la declaración [#, %]");
         gramatica.finalLineColumn();
         gramatica.group("Variable", "TIPO_DATO IDENTIFICADOR OP_ASIG ", true, 3, "Error sintáctico {}: No hay valor en la declaración [#, %]");
-        gramatica.group("Variable", "TIPO_DATO IDENTIFICADOR (Valor | IDENTIFICADOR) ", true, 4, "Error sintáctico {}: No hay operador de asignación en la declaración [#, %]");
-        gramatica.group("Variable", " IDENTIFICADOR OP_ASIG (Valor | IDENTIFICADOR) ", true, 5, "Error sintáctico {}: No hay tipo de dato de asignación en la declaración [#, %]");
-        gramatica.initialLineColumn();
-        //faltan combinaciones
-    //-----------------------------------------------------------------------------------------------------------------
+        gramatica.group("Variable", "TIPO_DATO IDENTIFICADOR Valor ", true, 4, "Error sintáctico {}: No hay operador de asignación en la declaración [#, %]");
+        gramatica.group("Variable", " IDENTIFICADOR OP_ASIG Valor ", true, 5, "Error sintáctico {}: No hay tipo de dato de asignación en la declaración [#, %]");
         
-    
+        gramatica.group("Variable", "TIPO_DATO IDENTIFICADOR ", true, 30, "Error sintáctico {}: Sintaxis incorrecta [#, %]");
+        gramatica.group("Variable", "TIPO_DATO ", true, 31, "Error sintáctico {}: Sintaxis incorrecta [#, %]");
+        gramatica.group("Variable", "IDENTIFICADOR OP_ASIG Valor ", true, 32, "Error sintáctico {}: Sintaxis incorrecta [#, %]");
+        gramatica.group("Variable", "OP_ASIG Valor ", true, 33, "Error sintáctico {}: Sintaxis incorrecta [#, %]");
+        gramatica.group("Variable", "OP_ASIG ", true, 34, "Error sintáctico {}: Sintaxis incorrecta [#, %]");
         
+        gramatica.group("Variable", "TIPO_DATO Valor", true, 36, "Error sintáctico {}: Sintaxis incorrecta [#, %]");
+        //gramatica.initialLineColumn();
+        
+        
+        
+        gramatica.group("datosaspersor", "numeroaspersor PUNTO (STAT_HUMEDAD | STAT_RIEGO | STAT_POTENCIA | STAT_TEMPERATURA ) ", true);
+        gramatica.group("datosaspersor", "numeroaspersor (STAT_HUMEDAD | STAT_RIEGO | STAT_POTENCIA | STAT_TEMPERATURA ) ", true, 36, "Error sintáctico {}: ASPERSOR1 [#, %]");
+        gramatica.group("datosaspersor", "numeroaspersor PUNTO ", true, 36, "Error sintáctico {}: ASPERSOR2 [#, %]");
+        gramatica.group("datosaspersor", "PUNTO (STAT_HUMEDAD | STAT_RIEGO | STAT_POTENCIA | STAT_TEMPERATURA )", true, 36, "Error sintáctico {}: ASPERSOR3 [#, %]");
+        gramatica.group("si", "ESTRUCTURA_SI PARENTESIS_A Condicion PARENTESIS_C LLAVE_A LLAVE_C", true);
+        
+        
+        gramatica.group("parametros", "(ASPERSOR | HORARIO | FRECUENCIA) CORCHETE_A NUMERO_ENTERO (COMA NUMERO_ENTERO)* CORCHETE_C", true);
+        gramatica.group("zona", "ESC_ZONA IDENTIFICADOR PARENTESIS_A (parametros)+ PARENTESIS_C ", true);
+        
+        gramatica.group("TODO", "zona | parametros | si | Condicion | datosaspersor | Variable | OpAritmetica | Valor | numeroaspersor | ERROR | ERROR_2 | ERROR_1 ");
+        gramatica.group("si", "ESTRUCTURA_SI PARENTESIS_A Condicion PARENTESIS_C LLAVE_A TODO LLAVE_C", true);
+        
+        
+        
+        
+        gramatica.group("Variable", "Valor ", true, 35, "Error sintáctico {}: Sintaxis incorrecta [#, %]");
+        
+        gramatica.show();
+    }
     
         
 //        //Agrupacion de operaciones aritmeticas
@@ -438,7 +475,7 @@ public class PanelTexto extends javax.swing.JPanel {
 
         /* Mostrar gramáticas */
         // gramatica.show();
-    }
+    
 
     private void semanticAnalysis() {
         
