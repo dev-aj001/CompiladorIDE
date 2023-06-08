@@ -119,6 +119,7 @@ public class Main extends javax.swing.JFrame {
     private void initComponents() {
 
         jFileChooser = new javax.swing.JFileChooser();
+        TablaSimbolos = new javax.swing.JTable();
         pnlToolBar = new javax.swing.JPanel();
         jToolBar3 = new javax.swing.JToolBar();
         btnNuevo = new javax.swing.JButton();
@@ -195,6 +196,26 @@ public class Main extends javax.swing.JFrame {
         jMenuItem19 = new javax.swing.JMenuItem();
 
         jFileChooser.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
+
+        TablaSimbolos.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
+            },
+            new String [] {
+                "Direccion de memoria", "Nombre de identificador", "Tipo", "Valor", "Primera aparición"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, true, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(255, 255, 255));
@@ -942,7 +963,9 @@ public class Main extends javax.swing.JFrame {
     }//GEN-LAST:event_btnCompilarActionPerformed
 
     private void btnTsimbolosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTsimbolosActionPerformed
-        JOptionPane.showMessageDialog(null, "simbolos");
+        TS ts = new TS();
+        ts.setTblTokens(TablaSimbolos);
+        ts.setVisible(true);
     }//GEN-LAST:event_btnTsimbolosActionPerformed
 
     private void jMenuItem21ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem21ActionPerformed
@@ -1057,6 +1080,7 @@ public class Main extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTable TablaSimbolos;
     private javax.swing.JButton btnAbrir;
     private javax.swing.JButton btnCerrarTabla;
     private javax.swing.JButton btnCompilar;
@@ -1399,6 +1423,7 @@ public class Main extends javax.swing.JFrame {
     private void compilar() {
         txtOutput.setText("");
         Functions.clearDataInTable(tblLexica);
+        Functions.clearDataInTable(TablaSimbolos);
         listAreaTexto.get(jTabbedPane.getSelectedIndex()).compile();
     }
     
@@ -1413,6 +1438,15 @@ public class Main extends javax.swing.JFrame {
     public void setTblLexica(JTable tblLexica) {
         this.tblLexica = tblLexica;
     }
+
+    public JTable getTS() {
+        return TablaSimbolos;
+    }
+
+    public void setTS(JTable TS) {
+        this.TablaSimbolos = TS;
+    }
+    
     
     
 }

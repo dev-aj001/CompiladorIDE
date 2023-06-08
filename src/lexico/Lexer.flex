@@ -32,7 +32,10 @@ Digito = [0-9]
 Identificador = {Letra}({Letra}|{Digito})*
 
 /* Número */
-Numero = 0 | [1-9][0-9]*
+NumeroEntero = 0 | [1-9]{Digito}* | -[1-9]{Digito}*
+
+/* Número Real */
+NumeroReal = ({NumeroEntero}|-0)"."{Digito}+
 %%
 /* Comentarios o espacios en blanco */
 {Comentario}|{EspacioEnBlanco} { /*Ignorar*/ }
@@ -43,11 +46,14 @@ bool |
 cadena |
 fecha { return token(yytext(), "TIPO_DATO", yyline, yycolumn); }
 
-/* Tipos de dato */
+/* constante */
 constante { return token(yytext(), "CONSTANTE", yyline, yycolumn); }
 
-/* Número */
-{Numero} { return token(yytext(), "NUMERO", yyline, yycolumn); }
+/* Número Entero */
+{NumeroEntero} { return token(yytext(), "NUMERO_ENTERO", yyline, yycolumn); }
+
+/* Número Real */
+{NumeroReal} { return token(yytext(), "NUMERO_REAL", yyline, yycolumn); }
 
 
 /* Operadores de agrupación */
@@ -61,12 +67,14 @@ constante { return token(yytext(), "CONSTANTE", yyline, yycolumn); }
 /* Signos de puntuación */
 "," { return token(yytext(), "COMA", yyline, yycolumn); }
 ";" { return token(yytext(), "PUNTO_COMA", yyline, yycolumn); }
+"." { return token(yytext(), "PUNTO", yyline, yycolumn); }
 
 /* Operador de asignación */
 = { return token (yytext(), "OP_ASIG", yyline, yycolumn); }
 
 /* Zona */
 zona { return token(yytext(), "ZONA", yyline, yycolumn); }
+
 
 
 /* PALABRAS RESERVADAS */
@@ -82,7 +90,7 @@ repetirMientras { return token(yytext(), "REPETIR", yyline, yycolumn); }
 intentar { return token(yytext(), "INTENTAR", yyline, yycolumn); }
 
 /* Mientras */
-mientras { return token(yytext(), "INTENTAR", yyline, yycolumn); }
+mientras { return token(yytext(), "MIENTRAS", yyline, yycolumn); }
 
 /* Activar */
 activar { return token(yytext(), "ACTIVAR", yyline, yycolumn); }
@@ -99,11 +107,16 @@ auto { return token(yytext(), "VALOR_AUTOMATICO", yyline, yycolumn); }
 
 /* Estadiasticas */
 
+
+
 /* Estado */
 estado { return token(yytext(), "STAT_ESTADO", yyline, yycolumn); }
 
 /* Temperatura */
 temperatura { return token(yytext(), "STAT_TEMPERATURA", yyline, yycolumn); }
+
+/* humedad */
+humedad { return token(yytext(), "STAT_HUMEDAD", yyline, yycolumn); }
 
 /* Potencia */
 potencia { return token(yytext(), "STAT_POTENCIA", yyline, yycolumn); }
@@ -113,6 +126,8 @@ riego { return token(yytext(), "STAT_RIEGO", yyline, yycolumn); }
 
 /* Horario */
 horario { return token(yytext(), "STAT_HORARIO", yyline, yycolumn); }
+
+
 
 /* Incremento */
 inc { return token(yytext(), "INCREMENTO", yyline, yycolumn); }
@@ -132,6 +147,20 @@ sino { return token(yytext(), "ESTRUCTURA_SINO", yyline, yycolumn); }
 "&" |
 "|" { return token(yytext(), "OP_LOGICO", yyline, yycolumn); }
 
+/* Operadores relaciones */
+"==" |
+"<=" |
+">" |
+"<" |
+"!=" |
+">=" { return token(yytext(), "OP_RELACIONAL", yyline, yycolumn); }
+
+/* Operadores Aritmeticos */
+"*" |
+"-" |
+"+" |
+"/" { return token(yytext(), "OP_ARITMETICO", yyline, yycolumn); }
+
 /* Identificador */
 {Identificador} { return token(yytext(), "IDENTIFICADOR", yyline, yycolumn); }
 
@@ -141,15 +170,14 @@ sino { return token(yytext(), "ESTRUCTURA_SINO", yyline, yycolumn); }
 
 /* Errores */
 // Número erróneo
-0 {Numero}+ { return token(yytext(), "ERROR_1", yyline, yycolumn); }
+0 {NumeroEntero}+ { return token(yytext(), "ERROR_1", yyline, yycolumn); }
 // Identificador error
-{Numero}+{Identificador} | 
+{NumeroEntero}+{Identificador} | 
 {Identificador}"("{Identificador} | 
 {Identificador}")"{Identificador} |
 {Identificador}"{"{Identificador} |
 {Identificador}"}"{Identificador} |
 {Identificador}"["{Identificador} |
-{Identificador}"."{Identificador} |
 {Identificador}"]"{Identificador} { return token(yytext(), "ERROR_2", yyline, yycolumn); }
 . { return token(yytext(), "ERROR", yyline, yycolumn); }
 

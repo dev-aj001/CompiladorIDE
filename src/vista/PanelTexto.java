@@ -329,7 +329,7 @@ public class PanelTexto extends javax.swing.JPanel {
         clearAll();
         lexicalAnalysis();
         fillTableTokens();
-        syntacticAalysis();
+        syntacticAnalysis();
         semanticAnalysis();
         printConsole();
         codeHasBeenCompiled = true;
@@ -362,22 +362,82 @@ public class PanelTexto extends javax.swing.JPanel {
     private void fillTableTokens() {
         tokens.forEach(token->{
             Object[] data = new Object[]{token.getLexicalComp(),token.getLexeme(),"["+token.getLine()+", "+token.getColumn()+"]"};
+//            Object[] simb = null;
+//            if(token.getLexicalComp().toString().equals("IDENTIFICADOR")){
+//                simb = new Object[]{System.identityHashCode(token.getLexicalComp()),token.getLexeme(),"valor indefinido","["+token.getLine()+", "+token.getColumn()+"]"};
+//            }
+//            System.out.println("HOla: " + simb.toString());
             Functions.addRowDataInTable(mclass.getTblLexica(), data);
         });
     }
 
-    private void syntacticAalysis() {
+    private void syntacticAnalysis() {
         Grammar gramatica = new Grammar(tokens, errors);
-        
-        gramatica.group("VALOR", "(NUMERO | IDENTIFICADOR)", true);
-        gramatica.group("VARIABLE", "TIPO_DATO IDENTIFICADOR OP_ASIG VALOR", true, identProd);
-        
-        gramatica.group("VARIABLE", "TIPO_DATO OP_ASIG VALOR", true,
-                1, " × Error sintáctico {}: falta el identificador en la declaración de variable [#, %]");
 
-        gramatica.finalLineColumn();
+        /* Deshabilitar mensajes y validaciones */
+        gramatica.disableMessages();
+        gramatica.disableValidations();
         
-        gramatica.show();
+        /*Eliminacion de errores*/
+        gramatica.delete(new String[]{"ERROR"}, 1, "Error Lexico {}: simbolo no perteneciente al lenguaje en la linea [#, %]");
+        gramatica.delete(new String[]{"ERROR_2"}, 2, "Error Lexico {}: identificador mal definido en la linea [#, %]");
+        gramatica.delete(new String[]{"ERROR_1"}, 3, "Error Lexico {}: numero mal definido en la linea [#, %]");
+        
+         //Agrupacion de valores
+        gramatica.group("Valor", "( NUMERO_ENTERO | NUMERO_REAL | VALOR_BOOLEANO | CADENA_TEXTO | IDENTIFICADOR)", true);
+        
+        //Declaracion de variables
+        gramatica.group("Variable", "TIPO_DATO IDENTIFICADOR OP_ASIG (Valor | IDENTIFICADOR)", true);
+
+        gramatica.group("Variable", "TIPO_DATO OP_ASIG (Valor | IDENTIFICADOR)", true, 2, "Error sintáctico {}: No hay identificador  en la declaración [#, %]");
+        gramatica.finalLineColumn();
+        gramatica.group("Variable", "TIPO_DATO IDENTIFICADOR OP_ASIG ", true, 3, "Error sintáctico {}: No hay valor en la declaración [#, %]");
+        gramatica.group("Variable", "TIPO_DATO IDENTIFICADOR (Valor | IDENTIFICADOR) ", true, 4, "Error sintáctico {}: No hay operador de asignación en la declaración [#, %]");
+        gramatica.group("Variable", " IDENTIFICADOR OP_ASIG (Valor | IDENTIFICADOR) ", true, 5, "Error sintáctico {}: No hay tipo de dato de asignación en la declaración [#, %]");
+        gramatica.initialLineColumn();
+        //faltan combinaciones
+    //-----------------------------------------------------------------------------------------------------------------
+        
+    
+        
+    
+        
+//        //Agrupacion de operaciones aritmeticas
+//        gramatica.group("OpAritmetica", "VALOR OpAritmetico VALOR", true);
+//
+//        //Concatenacion de variables
+//        gramatica.group("Concat", "IDENTIFICADOR OP_ASIG OpAritmetica", true);
+//
+//        //Declaracion de variables
+//        gramatica.group("Variable", "TIPO_DATO IDENTIFICADOR OP_ASIG Valor", true);
+//
+//        //Gramaticas de errores
+//        gramatica.group("Variable", "TIPO_DATO OP_ASIG (Valor | IDENTIFICADOR)", true, 4, "Error sintáctico {}: No hay identificador  en la declaración [#, %]");
+//        gramatica.group("Variable", "TIPO_DATO OP_ASIG ", true, 5, "Error sintáctico {}: Sentencia de decalración incompleta, falta identificador y valor [#, %]");
+//        gramatica.group("Variable", "TIPO_DATO", true, 6, "Error sintáctico {}: en [#, %]  Sentencia de decalración incompleta, sintaxis correcta deberia ser: Tipo_dato id = valor ");
+//        gramatica.finalLineColumn();
+//        gramatica.group("Variable", "TIPO_DATO IDENTIFICADOR OP_ASIG", true, 3, "Error sintáctico {}: No hay valor en la declaración [#, %]");
+//        gramatica.group("Variable", "TIPO_DATO IDENTIFICADOR", true, 5, "Error sintáctico {}: Sentencia de decalración incompleta, falta \"=\" y valor [#, %]");
+//        gramatica.group("Variable", "OP_ASIG", true, 6, "Error sintáctico {}: en [#, %]  No se esperaba encontrar el simbolo \"=\" ");
+//        gramatica.group("Variable", "TIPO_DATO IDENTIFICADOR (Valor | IDENTIFICADOR) ", true, 7, "Error sintáctico {}: No hay operador de asignación en la declaración [#, %]");
+//        gramatica.group("Variable", " IDENTIFICADOR OP_ASIG (Valor | IDENTIFICADOR) ", true, 8, "Error sintáctico {}: No hay tipo de dato de asignación en la declaración [#, %]");
+//        gramatica.initialLineColumn();
+//        
+//        /* EXPRECION RELACIONAL */
+//        gramatica.loopForFunExecUntilChangeNotDetected(() -> {
+//            gramatica.group("EXP_RELACIONAL", "Valor OP_RELACIONAL");
+//        });
+//        
+//        /* EXPRECION LOGICA */
+//        gramatica.loopForFunExecUntilChangeNotDetected(() -> {
+//            gramatica.group("EXP_LOGICA", "(Valor) (OP)");
+//        });
+//        
+//        /* AGRUPACIÓN DE ESTRUCTURAS DE CONTROL */
+//        gramatica.group("EST_CONTROL", "(ESTRUCTURA_SI)");
+
+        /* Mostrar gramáticas */
+        // gramatica.show();
     }
 
     private void semanticAnalysis() {
