@@ -74,6 +74,8 @@ public class Main extends javax.swing.JFrame {
     
     private String exten = ".asperlang";
     
+    TS ts;
+    
     Image desktopIcon = Toolkit.getDefaultToolkit().getImage("src\\style\\compilar.png").getScaledInstance(60, 60, Image.SCALE_SMOOTH);
     //
     /**
@@ -93,6 +95,7 @@ public class Main extends javax.swing.JFrame {
         listAreaTexto = new ArrayList<PanelTexto>();
         currentFile = new File("C:/Users/jairi/Documents/Compilador normal/Compilador/Programas prueba");
         actualizarFile(currentFile);
+        ts = new TS();
         
         File a = new File(currentFile, "b.asperlang");
         System.out.println("Parent: "+ currentFile.getPath());
@@ -963,8 +966,7 @@ public class Main extends javax.swing.JFrame {
     }//GEN-LAST:event_btnCompilarActionPerformed
 
     private void btnTsimbolosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTsimbolosActionPerformed
-        TS ts = new TS();
-        ts.setTblTokens(TablaSimbolos);
+        
         ts.setVisible(true);
     }//GEN-LAST:event_btnTsimbolosActionPerformed
 
@@ -1423,7 +1425,7 @@ public class Main extends javax.swing.JFrame {
     private void compilar() {
         txtOutput.setText("");
         Functions.clearDataInTable(tblLexica);
-        Functions.clearDataInTable(TablaSimbolos);
+        Functions.clearDataInTable(ts.getTblTokens());
         listAreaTexto.get(jTabbedPane.getSelectedIndex()).compile();
     }
     
@@ -1440,7 +1442,7 @@ public class Main extends javax.swing.JFrame {
     }
 
     public JTable getTS() {
-        return TablaSimbolos;
+        return ts.getTblTokens();
     }
 
     public void setTS(JTable TS) {

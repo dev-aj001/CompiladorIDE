@@ -1,7 +1,18 @@
-numero var1 = aspersor[2].humedad
-numero var2 = 0
-si(var<50){
-	repetir(5){
-		inc var
-	}
+
+    numero hora_actual = 10 
+
+    si (hora_actual >= 6){
+
+        duracionaspersor1 = 5
+        numero duracion_aspersor2 = 4
+
+	si (hora_actual >= 6){
+
+si (hora_actual >= 6){
+
+        duracion_aspersor1 = 5
+        numero duracion_aspersor2 = 4}
+
+        duracion_aspersor1 = 5
+        numero duracion_aspersor2 = 4}
 }

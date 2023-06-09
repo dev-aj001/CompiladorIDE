@@ -45,17 +45,17 @@ public class TS extends javax.swing.JFrame {
 
         tblTokens.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
             },
             new String [] {
-                "Direccion de memoria", "Nombre de identificador", "Tipo", "Valor", "Primera aparición"
+                "Nombre de identificador", "Tipo", "Valor", "Primera aparición"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, true, false, false
+                false, true, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
