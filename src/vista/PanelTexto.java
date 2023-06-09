@@ -424,9 +424,13 @@ public class PanelTexto extends javax.swing.JPanel {
         // Eliminacion de arreglos incompletos  
         gramatica.group("Arreglo", "CORCHETE_A (((NUMERO_ENTERO|IDENTIFICADOR) COMA)* (Valor) (COMA (Valor|(NUMERO_ENTERO|IDENTIFICADOR)))* (COMA (NUMERO_ENTERO|IDENTIFICADOR))*)+ CORCHETE_C", true, 1, "Error sintáctico [{}] en la línea #: Sólo pueden existir valores de tipo entero dentro de un arreglo");
         gramatica.group("Arreglo", "CORCHETE_A ((COMA)|(((NUMERO_ENTERO|IDENTIFICADOR) (COMA)+) | ((COMA)+ (NUMERO_ENTERO|IDENTIFICADOR)) | (((NUMERO_ENTERO|IDENTIFICADOR) COMA) (COMA)+ (NUMERO_ENTERO|IDENTIFICADOR)))+)+ CORCHETE_C", true, 1, "Error sintáctico [{}] en la línea #: valor indefinido despues de la una coma");
-        gramatica.group("Arreglo", "CORCHETE_A  (NUMERO_ENTERO|IDENTIFICADOR) (COMA (NUMERO_ENTERO|IDENTIFICADOR))*", true, 2, "Error sintáctico [{}] en la línea #: No hay corchete de cierre en el arreglo");
+        gramatica.group("Arreglo", "CORCHETE_A  (NUMERO_ENTERO|IDENTIFICADOR) (COMA (NUMERO_ENTERO|IDENTIFICADOR))*", true, 2, "Error sintáctico [{}] en la línea #, y columna %: No hay corchete de cierre en el arreglo");
         gramatica.group("Arreglo", "(NUMERO_ENTERO|IDENTIFICADOR) (COMA ((NUMERO_ENTERO|IDENTIFICADOR)))* CORCHETE_C", true, 3, "Error sintáctico [{}] en la línea #: No hay corchete de apertura en el arreglo");
         gramatica.group("Arreglo", "CORCHETE_A CORCHETE_C", true, 4, "Error sintáctico [{}] en la línea #: No es posible declarar un arreglo vacío");
+        
+        gramatica.group("ArregloCompleto", "IDENTIFICADOR Arreglo", true);
+        
+        gramatica.delete("Arreglo",123, "Error sintáctico [{}] en la línea #: El arreglo no esta declarado despues de un valor definido");
 
         // Eliminación de corchetes
         gramatica.delete(new String[]{"CORCHETE_A", "CORCHETE_C"}, 5, "Error sintáctico [{}] en la línea #: El corchete [] debe seguir de un arreglo");
@@ -486,18 +490,74 @@ public class PanelTexto extends javax.swing.JPanel {
         
         // -----------------------------------------------------------------------------------------------
         // Agrupación de estructuras de control condicional
-        gramatica.group("EstructuraCondicional", "ESTRUCTURA_SI");
+        gramatica.group("EstructuraCondicional", "ESTRUCTURA_SI", true);
         
         gramatica.group("Valor_Condicion", "Valor OP_RELACIONAL Valor");
         gramatica.group("Valor_Condicion", "Valor OP_ASIG Valor", 51, "Error confundio '=' con '=='");
-        gramatica.group("Valor_Condicion", "PARENTESIS_A Valor_Condicion PARENTESIS_C");
-        gramatica.group("Valor_Condicion", "PARENTESIS_A OP_ASIG PARENTESIS_C", 51, "Error confundio '=' con '=='");
         
-        gramatica.group("Condicion", "Valor_Condicion (OP_LOGICO Valor_Condicion)*");
+//        gramatica.group("Valor_Condicion_Par", "PARENTESIS_A Valor_Condicion PARENTESIS_C");
+//        gramatica.group("Valor_Condicion_Par", "Valor_Condicion PARENTESIS_C", 52, "Falta parentesis de apertura");
+//        gramatica.group("Valor_Condicion_Par", "PARENTESIS_A Valor_Condicion", 53, "Falta parentesis de cierre");
+        //gramatica.group("Valor_Condicion", "PARENTESIS_A OP_ASIG PARENTESIS_C", 51, "Error confundio '=' con '=='");
         
-        gramatica.group("EstructuraCondicionalCompleta", "EstructuraCondicional PARENTESIS_A Condicion PARENTESIS_C");
+        gramatica.group("Condicion", "(Valor_Condicion) (OP_LOGICO (Valor_Condicion))*");
         
-        //gramatica.delete("OP_ASIG", 19, "Error sintáctico [{}] en la línea #: No se esperaba encontrar '=' o No se declaro correctamente");
+        gramatica.group("EstructuraCondicionalCompleta", "EstructuraCondicional (PARENTESIS_A (Condicion) PARENTESIS_C)");
+        
+        gramatica.delete("OP_ASIG", 19, "Error sintáctico [{}] en la línea #: No se esperaba encontrar '=' o No se declaro correctamente");
+        
+        // Eliminación de estructuras de control condicionales incompletas
+        gramatica.group("EstructuraCondicionalCompleta", "EstructuraCondicional PARENTESIS_A (Valor|(Valor OP_RELACIONAL)) PARENTESIS_C", true, 30, "Error sintáctico [{}] en la línea #: Se necesita escribir una condicion completa para poder realizar la evaluación");
+        gramatica.group("EstructuraCondicionalCompleta", "EstructuraCondicional PARENTESIS_A PARENTESIS_C", true, 31, "Error sintáctico [{}] en la línea #: Falta de parámetros en la condición");
+        gramatica.group("EstructuraCondicionalCompleta", "EstructuraCondicional (Condicion)? PARENTESIS_C", true, 32, "Error sintáctico [{}] en la línea #: Falta paréntesis de apertura en la estructura condicional");
+        gramatica.group("EstructuraCondicionalCompleta", "EstructuraCondicional PARENTESIS_A (Condicion)", true, 33, "Error sintáctico [{}] en la línea #: Falta paréntesis de cierre en la estructura condicional");
+        gramatica.group("EstructuraCondicionalCompleta", "EstructuraCondicional PARENTESIS_A OP_RELACIONAL Valor PARENTESIS_C", true, 34, "Error sintáctico [{}] en la línea #: Falta el identificador en la condición");
+        //gramatica.group("EstructuraCondicionalCompleta", "EstructuraCondicional PARENTESIS_A Valor Err_OperadorIgual Valor ParentesisC", true, 35, "Error sintáctico [{}] en la línea #: El operador de comparación no está completo");
+
+        gramatica.delete("EstructuraCondicional", 36, "Error sintáctico [{}] en la línea #: La estructura de condicional [] no está declarada correctamente");
+        
+        // ------------------------------------------------------------------------------------------------
+        // Agrupación de estructuras de control repetitiva
+        gramatica.group("EstructuraRepetitiva", "REPETIR");
+        // gramatica.group("Argumento", "Inicializar SemiComa Condicion SemiComa Indice", true);
+        gramatica.group("EstructuraRepetitivaCompleta", "EstructuraRepetitiva Valor ", true, ERCProducciones);
+
+        // Eliminación de estructuras de control repetitivas incompletas
+        gramatica.group("EstructuraRepetitivaCompleta", "EstructuraRepetitiva PARENTESIS_A PARENTESIS_C", true, 40, "Error sintáctico [{}] en la línea #: Falta de parámetros en el valor");
+        gramatica.group("EstructuraRepetitivaCompleta", "EstructuraRepetitiva (Valor)? PARENTESIS_C", true, 41, "Error sintáctico [{}] en la línea #: Falta paréntesis de apertura en la estructura repetitiva");
+        gramatica.group("EstructuraRepetitivaCompleta", "EstructuraRepetitiva PARENTESIS_A (Valor)?", true, 42, "Error sintáctico [{}] en la línea #: Falta paréntesis de cierre en la estructura repetitiva");
+
+        gramatica.delete("EstructuraRepetitiva", 43, "Error sintáctico [{}] en la línea #: La estructura de repetitiva [] no está declarada correctamente");
+
+        gramatica.delete(new String[]{"PARENTESIS_A", "PARENTESIS_C"}, 80, "Error sintáctico [{}] en la línea #: El parentesis [] no está contenido en ninguna agrupación");
+
+        // Incremento o Decremeto
+        gramatica.group("Indice", "Valor OperadorUnario");
+        
+        // Agrupación de sentencias
+        gramatica.group("Sentencias", "(Indice | Asignar | Inicializar)+");
+        
+        // -------------------------------------------------------------------------------------------------------
+        // Agrupación de estructuras de control
+        gramatica.group("EstructuraControlCompleta", "(EstructuraRepetitivaCompleta | EstructuraCondicionalCompleta)");
+        
+        gramatica.loopForFunExecUntilChangeNotDetected(() -> {
+            // Eliminar estructuras de control que contienen inicializaciones
+            gramatica.group("EstructuraControlCompletaLASLC", "EstructuraControlCompleta LLAVE_A (Sentencias)? LLAVE_C", true);
+            gramatica.group("Sentencias", "(Sentencias | EstructuraControlCompletaLASLC)+");
+        });
+        
+        // Estructuras de control incompletas
+        gramatica.loopForFunExecUntilChangeNotDetected(() -> {
+            gramatica.initialLineColumn();
+            gramatica.group("EstructuraControlCompletaLASLC", "EstructuraControlCompleta (Sentencias)? (LLAVE_C)", true, 91, "Error sintáctico [{}] en la línea #: Falta la llave de apertura en la estructura de control");
+            gramatica.finalLineColumn();
+            gramatica.group("EstructuraControlCompletaLASLC", "EstructuraControlCompleta LLAVE_A (Sentencias)?", true, 92, "Error sintáctico [{}] en la línea #: Falta la llave de cierre en la estructura de control");
+            gramatica.group("EstructuraControlCompletaLASLC", "EstructuraControlCompleta (Sentencias)?", true, 92, "Error sintáctico [{}] en la línea #: Falta la llave de apertura en la estructura de control");
+            gramatica.group("Sentencias", "(Sentencias | EstructuraControlCompletaLASLC)+", true);
+        });
+        
+        
 
         
         gramatica.show();

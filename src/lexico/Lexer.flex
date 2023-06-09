@@ -85,8 +85,8 @@ alerta { return token(yytext(), "OUT_MENSAJE", yyline, yycolumn); }
 
 
 /* Repetir */
-repetir |
-repetirMientras { return token(yytext(), "REPETIR", yyline, yycolumn); }
+repetir { return token(yytext(), "REPETIR", yyline, yycolumn); }
+repetirMientras { return token(yytext(), "REPETIR_MIENTRAS", yyline, yycolumn); }
 
 /* Intentar */
 intentar { return token(yytext(), "INTENTAR", yyline, yycolumn); }
