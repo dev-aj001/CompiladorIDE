@@ -1,1 +1,7 @@
-aspersor[1].humedad
+numero var1 = aspersor[2].humedad
+numero var2 = 0
+si(var<50){
+	repetir(5){
+		inc var
+	}
+}

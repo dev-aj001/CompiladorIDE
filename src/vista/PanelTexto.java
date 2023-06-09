@@ -436,7 +436,7 @@ public class PanelTexto extends javax.swing.JPanel {
         gramatica.group("AspersorStat", "ArregloCompleto PUNTO IDENTIFICADOR",true,  45, "Error sintáctico [{}] en la línea #: No es un aun estatus");
         gramatica.group("AspersorStat", "ArregloCompleto PUNTO",true,  45, "Error sintáctico [{}] en la línea #: EL estatus no esta definido");
         
-        gramatica.delete("Arreglo",123, "Error sintáctico [{}] en la línea #: El arreglo no esta declarado despues de un valor definido");
+        //gramatica.delete("Arreglo",123, "Error sintáctico [{}] en la línea #: El arreglo no esta declarado despues de un valor definido");
 
         
         // Eliminación de corchetes
@@ -459,7 +459,7 @@ public class PanelTexto extends javax.swing.JPanel {
 
 // -----------------------------------------------------------------------------------------------
         // Agrupar valores
-        gramatica.group("Valor", "(NUMERO_ENTERO)");
+        gramatica.group("Valor", "(NUMERO_ENTERO|Arreglo|ArregloCompleto|AspersorStat)");
         
         // Operadores aritmeticos
         //gramatica.group("OpAritmetico", "OP_ARITMETICO");
@@ -499,7 +499,7 @@ public class PanelTexto extends javax.swing.JPanel {
         //gramatica.group("Inicializar", "TIPO_DATO IDENTIFICADOR Err_OperadorIgual Valor", true, 15, "Error sintáctico [{}] en la línea #: El operador '=' es incorrecto, para inicializar utiliza '->'");
 
         // Asignaciones a variables
-        gramatica.group("Asignar", "(IDENTIFICADOR|ESTATUS) OP_ASIG (Valor|ArregloCompleto|IDENTIFICADOR)", true, AsignacionProducciones);
+        gramatica.group("Asignar", "(IDENTIFICADOR|ESTATUS) OP_ASIG (Valor|ArregloCompleto|IDENTIFICADOR|Arreglo)", true, AsignacionProducciones);
         
         // Asignaciones incompletas
         gramatica.group("Asignar", "(IDENTIFICADOR|ESTATUS) OP_ASIG", true, 16, "Error sintáctico [{}] en la línea #: Faltó asignar un valor");
@@ -560,10 +560,12 @@ public class PanelTexto extends javax.swing.JPanel {
         gramatica.delete(new String[]{"PARENTESIS_A", "PARENTESIS_C"}, 80, "Error sintáctico [{}] en la línea #: El parentesis [] no está contenido en ninguna agrupación");
 
         // Incremento o Decremeto
-        gramatica.group("Indice", "Valor OperadorUnario");
-        
+        gramatica.group("Indice", "OperadorUnario Valor");
+        gramatica.group("Indice", "ValorOperadorUnario", 55,"Error sintáctico [{}] en la línea #: La sintaxis del operador uniario es incorrecta, invertir las cadenas");
+
+        gramatica.delete("OperadorUnario",56,"Error sintáctico [{}] en la línea #: El operador unario esta mal definido sintacticamente");
         // Agrupación de sentencias
-        gramatica.group("Sentencias", "(Indice | Asignar | Inicializar)+");
+        gramatica.group("Sentencias", "(ArregloCompleto | Indice | Asignar | Inicializar | OperacionAritmetica | Valor)+");
         
         // -------------------------------------------------------------------------------------------------------
         // Agrupación de estructuras de control
@@ -584,11 +586,9 @@ public class PanelTexto extends javax.swing.JPanel {
             gramatica.group("EstructuraControlCompletaLASLC", "EstructuraControlCompleta (Sentencias)?", true, 92, "Error sintáctico [{}] en la línea #: Falta la llave de apertura en la estructura de control");
             gramatica.group("Sentencias", "(Sentencias | EstructuraControlCompletaLASLC)+", true);
         });
+        //gramatica.show();
         
-        
-
-        
-        gramatica.show();
+        System.out.println("hola");
     }
     
         
@@ -631,7 +631,7 @@ public class PanelTexto extends javax.swing.JPanel {
     
 
     private void semanticAnalysis() {
-        
+        System.out.println("InicializacionProducciones" + InicializacionProducciones);
     }
     
     private void printConsole(){
