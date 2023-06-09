@@ -62,6 +62,21 @@ public class PanelTexto extends javax.swing.JPanel {
     private ArrayList<Integer> badCodes;
     private Main mclass;
     
+    // Declaraciones para Análisis Semántico
+    private ArrayList<Production> ArregloProducciones;
+    private ArrayList<Production> InicializacionProducciones;
+    private ArrayList<Production> AsignacionProducciones;
+    private ArrayList<Production> CondicionProducciones;
+    private ArrayList<Production> ERCProducciones;
+    private ArrayList<Production> EECProducciones;
+    private ArrayList<Production> LlamadaCompletaProducciones;
+    private ArrayList<Production> LlamadaEspCompletaProducciones;
+    private ArrayList<Production> FuncionReproducirProducciones;
+    private ArrayList<Production> FuncionDescansoProducciones;
+    private ArrayList<Production> FuncionElegirInstrumentoProducciones;
+    private ArrayList<Production> EstructurasFuncionesProducciones;
+    private ArrayList<ArrayList> CodigoCompletoProducciones;
+    
     
     public PanelTexto(boolean ln, Main mclass) {
         initComponents();
@@ -90,6 +105,20 @@ public class PanelTexto extends javax.swing.JPanel {
         textsColor = new ArrayList<>();
         identProd = new ArrayList<>();
         identificadores = new HashMap<>();
+        
+        // Analizador Semántico
+        InicializacionProducciones = new ArrayList<>();
+        AsignacionProducciones = new ArrayList<>();
+        CondicionProducciones = new ArrayList<>();
+        ERCProducciones = new ArrayList<>();
+        EECProducciones = new ArrayList<>();
+        LlamadaCompletaProducciones = new ArrayList<>();
+        LlamadaEspCompletaProducciones = new ArrayList<>();
+        FuncionReproducirProducciones = new ArrayList<>();
+        FuncionDescansoProducciones = new ArrayList<>();
+        FuncionElegirInstrumentoProducciones = new ArrayList<>();
+        EstructurasFuncionesProducciones = new ArrayList<>();
+        CodigoCompletoProducciones = new ArrayList<>();
     }
     
     private void colorAnalysis() {
@@ -374,66 +403,102 @@ public class PanelTexto extends javax.swing.JPanel {
     private void syntacticAnalysis() {
         Grammar gramatica = new Grammar(tokens, errors);
 
-        /* Deshabilitar mensajes y validaciones */
-        gramatica.disableMessages();
-        gramatica.disableValidations();
-        
-        /*Eliminacion de errores*/
+        // Eliminar errores léxicos
         gramatica.delete(new String[]{"ERROR"}, 1, "Error Lexico {}: simbolo no perteneciente al lenguaje en la linea [#, %]");
         gramatica.delete(new String[]{"ERROR_2"}, 2, "Error Lexico {}: identificador mal definido en la linea [#, %]");
         gramatica.delete(new String[]{"ERROR_1"}, 3, "Error Lexico {}: numero mal definido en la linea [#, %]");
         
-        gramatica.group("Condicion", "(Valor | datosaspersor) (OP_RELACIONAL Valor)+", true);
-        
-        gramatica.group("numeroaspersor", "ASPERSOR CORCHETE_A NUMERO_ENTERO CORCHETE_C ", true);
-        gramatica.group("numeroaspersor", " ASPERSOR CORCHETE_A NUMERO_ENTERO ", true, 5, "Error sintáctico {}: Hace falta un corchete [#, %]");
-        gramatica.group("numeroaspersor", " ASPERSOR  NUMERO_ENTERO CORCHETE_C", true, 5, "Error sintáctico {}: Hace falta un corchete [#, %]");
-        gramatica.group("numeroaspersor", " ASPERSOR  CORCHETE_A CORCHETE_C", true, 5, "Error sintáctico {}: Hace falta un valor [#, %]");
-        gramatica.group("si", "ESTRUCTURA_SI PARENTESIS_A Condicion PARENTESIS_C LLAVE_A", true, 55, "ERROR SI");
-         //Agrupacion de valores
-        gramatica.group("Valor", "( NUMERO_ENTERO | NUMERO_REAL | VALOR_BOOLEANO | CADENA_TEXTO IDENTIFICADOR)", true);
-        
-                //Agrupacion de operaciones aritmeticas
-        gramatica.group("OpAritmetica", "VALOR OpAritmetico Valor", true);
+        // Operador Unario
+        gramatica.group("OperadorUnario", "(INCREMENTO|DECREMENTO)");
+        // Agrupar valores
+        gramatica.group("Valor", "(NUMERO_REAL|CADENA_TEXTO|VALOR_AUTOMATICO|VALOR_BOOLEANO|DESACTIVAR|ACTIVAR)");
+        //gramatica.group("Valor_ASP", "");
 
+        // -----------------------------------------------------------------------------------------------
+        // Valor de arrglo
+        //gramatica.group("Valor_ARRE", "");
+        // Estructura de datos tipo arreglo
+        gramatica.group("Arreglo", "(CORCHETE_A (NUMERO_ENTERO|IDENTIFICADOR) (COMA (NUMERO_ENTERO|IDENTIFICADOR))* CORCHETE_C)", true);
+        
+        
+        // Eliminacion de arreglos incompletos  
+        gramatica.group("Arreglo", "CORCHETE_A (((NUMERO_ENTERO|IDENTIFICADOR) COMA)* (Valor) (COMA (Valor|(NUMERO_ENTERO|IDENTIFICADOR)))* (COMA (NUMERO_ENTERO|IDENTIFICADOR))*)+ CORCHETE_C", true, 1, "Error sintáctico [{}] en la línea #: Sólo pueden existir valores de tipo entero dentro de un arreglo");
+        gramatica.group("Arreglo", "CORCHETE_A ((COMA)|(((NUMERO_ENTERO|IDENTIFICADOR) (COMA)+) | ((COMA)+ (NUMERO_ENTERO|IDENTIFICADOR)) | (((NUMERO_ENTERO|IDENTIFICADOR) COMA) (COMA)+ (NUMERO_ENTERO|IDENTIFICADOR)))+)+ CORCHETE_C", true, 1, "Error sintáctico [{}] en la línea #: valor indefinido despues de la una coma");
+        gramatica.group("Arreglo", "CORCHETE_A  (NUMERO_ENTERO|IDENTIFICADOR) (COMA (NUMERO_ENTERO|IDENTIFICADOR))*", true, 2, "Error sintáctico [{}] en la línea #: No hay corchete de cierre en el arreglo");
+        gramatica.group("Arreglo", "(NUMERO_ENTERO|IDENTIFICADOR) (COMA ((NUMERO_ENTERO|IDENTIFICADOR)))* CORCHETE_C", true, 3, "Error sintáctico [{}] en la línea #: No hay corchete de apertura en el arreglo");
+        gramatica.group("Arreglo", "CORCHETE_A CORCHETE_C", true, 4, "Error sintáctico [{}] en la línea #: No es posible declarar un arreglo vacío");
 
-        //Declaracion de variables
-        gramatica.group("Variable", "TIPO_DATO IDENTIFICADOR OP_ASIG Valor", true);
+        // Eliminación de corchetes
+        gramatica.delete(new String[]{"CORCHETE_A", "CORCHETE_C"}, 5, "Error sintáctico [{}] en la línea #: El corchete [] debe seguir de un arreglo");
+        //FUNCIONA^^
+        // -----------------------------------------------------------------------------------------------
+        // Agrupar valores
+        gramatica.group("Valor", "(NUMERO_ENTERO)");
+        
+        // Operadores aritmeticos
+        //gramatica.group("OpAritmetico", "OP_ARITMETICO");
+        
+        // Operadores aritmeticos
+        //gramatica.group("TipoDato", "TIPO_DATO");
+        
+        // Operadores comparacion
+        //gramatica.group("OperadorComparacion", "OP_RELACIONAL");
+        
+        // -----------------------------------------------------------------------------------------------
+        // Expresion
+        
+        // Agrupación de operaciones aritméticas
+        gramatica.group("Valor", "PARENTESIS_A (Valor|IDENTIFICADOR) PARENTESIS_C",true);
+        gramatica.group("OperacionAritmetica", "((Valor|IDENTIFICADOR) (OP_ARITMETICO (Valor|IDENTIFICADOR))+) | PARENTESIS_A ((Valor|IDENTIFICADOR) (OP_ARITMETICO (Valor|IDENTIFICADOR))+) PARENTESIS_C");
+        gramatica.group("OperacionAritmetica", "(OperacionAritmetica (OP_ARITMETICO (OperacionAritmetica|Valor))+)");
+        
+        
+        // Eliminación de operaciones aritméticas con arreglos
+        gramatica.group("OperacionAritmetica", "(((Valor|OperacionAritmetica)OpAritmetico)+ Arreglo(OpAritmetico(Valor|OperacionAritmetica))*|((Valor|OperacionAritmetica)OpAritmetico)* Arreglo(OpAritmetico(Valor|OperacionAritmetica))+)", true, 6, "Error sintáctico [{}] en la línea #: No se permite realizar operaciones con areglos");
+        
+        // Agrupar valores
+        gramatica.group("Valor", "OperacionAritmetica");
+        
+        //cEliminacion de operador aritmetico
+        gramatica.delete("OP_ARITMETICO",10,"Error sintáctico [{}] en la línea #, columna %: \nOperador aritmetico en posición erronea");
 
-        gramatica.group("Variable", "TIPO_DATO OP_ASIG Valor", true, 2, "Error sintáctico {}: No hay identificador  en la declaración [#, %]");
-        gramatica.finalLineColumn();
-        gramatica.group("Variable", "TIPO_DATO IDENTIFICADOR OP_ASIG ", true, 3, "Error sintáctico {}: No hay valor en la declaración [#, %]");
-        gramatica.group("Variable", "TIPO_DATO IDENTIFICADOR Valor ", true, 4, "Error sintáctico {}: No hay operador de asignación en la declaración [#, %]");
-        gramatica.group("Variable", " IDENTIFICADOR OP_ASIG Valor ", true, 5, "Error sintáctico {}: No hay tipo de dato de asignación en la declaración [#, %]");
+       
+        // Inicializaciones de variables
+        gramatica.group("Inicializar", "TIPO_DATO IDENTIFICADOR OP_ASIG Valor", true, InicializacionProducciones);
         
-        gramatica.group("Variable", "TIPO_DATO IDENTIFICADOR ", true, 30, "Error sintáctico {}: Sintaxis incorrecta [#, %]");
-        gramatica.group("Variable", "TIPO_DATO ", true, 31, "Error sintáctico {}: Sintaxis incorrecta [#, %]");
-        gramatica.group("Variable", "IDENTIFICADOR OP_ASIG Valor ", true, 32, "Error sintáctico {}: Sintaxis incorrecta [#, %]");
-        gramatica.group("Variable", "OP_ASIG Valor ", true, 33, "Error sintáctico {}: Sintaxis incorrecta [#, %]");
-        gramatica.group("Variable", "OP_ASIG ", true, 34, "Error sintáctico {}: Sintaxis incorrecta [#, %]");
+        // Inicializaciones incompletas
+        gramatica.group("Inicializar", "TIPO_DATO OP_ASIG Valor", true, 11, "Error sintáctico [{}] en la línea #: Falta identificador en la asignación");
+        gramatica.group("Inicializar", "TIPO_DATO IDENTIFICADOR OP_ASIG ", true, 13, "Error sintáctico [{}] en la línea #: Falta el valor de declaración o es erroneo");
+        gramatica.group("Inicializar", "TIPO_DATO IDENTIFICADOR Valor", true, 14, "Error sintáctico [{}] en la línea #: Falta el operador de asignacion '='");
+        //gramatica.group("Inicializar", "TIPO_DATO IDENTIFICADOR Err_OperadorIgual Valor", true, 15, "Error sintáctico [{}] en la línea #: El operador '=' es incorrecto, para inicializar utiliza '->'");
+
+        // Asignaciones a variables
+        gramatica.group("Asignar", "IDENTIFICADOR OP_ASIG (Valor|Arreglo|IDENTIFICADOR)", true, AsignacionProducciones);
         
-        gramatica.group("Variable", "TIPO_DATO Valor", true, 36, "Error sintáctico {}: Sintaxis incorrecta [#, %]");
-        //gramatica.initialLineColumn();
+        // Asignaciones incompletas
+        gramatica.group("Asignar", "IDENTIFICADOR OP_ASIG", true, 16, "Error sintáctico [{}] en la línea #: Faltó asignar un valor");
+        gramatica.group("Asignar", "IDENTIFICADOR (Valor|Arreglo|IDENTIFICADOR)", true, 17, "Error sintáctico [{}] en la línea #: Falta el operador de asignacion '='");
+
+        // Eliminación de declaraciones de variables incompletas
+        gramatica.delete("TIPO_DATO", 20, "Error sintáctico [{}] en la línea #: No se declaro correctamente");
         
+        gramatica.group("Valor", "(Valor | IDENTIFICADOR)");
         
+        // -----------------------------------------------------------------------------------------------
+        // Agrupación de estructuras de control condicional
+        gramatica.group("EstructuraCondicional", "ESTRUCTURA_SI");
         
-        gramatica.group("datosaspersor", "numeroaspersor PUNTO (STAT_HUMEDAD | STAT_RIEGO | STAT_POTENCIA | STAT_TEMPERATURA ) ", true);
-        gramatica.group("datosaspersor", "numeroaspersor (STAT_HUMEDAD | STAT_RIEGO | STAT_POTENCIA | STAT_TEMPERATURA ) ", true, 36, "Error sintáctico {}: ASPERSOR1 [#, %]");
-        gramatica.group("datosaspersor", "numeroaspersor PUNTO ", true, 36, "Error sintáctico {}: ASPERSOR2 [#, %]");
-        gramatica.group("datosaspersor", "PUNTO (STAT_HUMEDAD | STAT_RIEGO | STAT_POTENCIA | STAT_TEMPERATURA )", true, 36, "Error sintáctico {}: ASPERSOR3 [#, %]");
-        gramatica.group("si", "ESTRUCTURA_SI PARENTESIS_A Condicion PARENTESIS_C LLAVE_A LLAVE_C", true);
+        gramatica.group("Valor_Condicion", "Valor OP_RELACIONAL Valor");
+        gramatica.group("Valor_Condicion", "Valor OP_ASIG Valor", 51, "Error confundio '=' con '=='");
+        gramatica.group("Valor_Condicion", "PARENTESIS_A Valor_Condicion PARENTESIS_C");
+        gramatica.group("Valor_Condicion", "PARENTESIS_A OP_ASIG PARENTESIS_C", 51, "Error confundio '=' con '=='");
         
+        gramatica.group("Condicion", "Valor_Condicion (OP_LOGICO Valor_Condicion)*");
         
-        gramatica.group("parametros", "(ASPERSOR | HORARIO | FRECUENCIA) CORCHETE_A NUMERO_ENTERO (COMA NUMERO_ENTERO)* CORCHETE_C", true);
-        gramatica.group("zona", "ESC_ZONA IDENTIFICADOR PARENTESIS_A (parametros)+ PARENTESIS_C ", true);
+        gramatica.group("EstructuraCondicionalCompleta", "EstructuraCondicional PARENTESIS_A Condicion PARENTESIS_C");
         
-        gramatica.group("TODO", "zona | parametros | si | Condicion | datosaspersor | Variable | OpAritmetica | Valor | numeroaspersor | ERROR | ERROR_2 | ERROR_1 ");
-        gramatica.group("si", "ESTRUCTURA_SI PARENTESIS_A Condicion PARENTESIS_C LLAVE_A TODO LLAVE_C", true);
-        
-        
-        
-        
-        gramatica.group("Variable", "Valor ", true, 35, "Error sintáctico {}: Sintaxis incorrecta [#, %]");
+        //gramatica.delete("OP_ASIG", 19, "Error sintáctico [{}] en la línea #: No se esperaba encontrar '=' o No se declaro correctamente");
+
         
         gramatica.show();
     }

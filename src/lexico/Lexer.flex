@@ -82,6 +82,8 @@ mensaje |
 alerta { return token(yytext(), "OUT_MENSAJE", yyline, yycolumn); }
 
 /* Estructuras de control */
+
+
 /* Repetir */
 repetir |
 repetirMientras { return token(yytext(), "REPETIR", yyline, yycolumn); }
@@ -132,6 +134,9 @@ horario { return token(yytext(), "STAT_HORARIO", yyline, yycolumn); }
 /* Incremento */
 inc { return token(yytext(), "INCREMENTO", yyline, yycolumn); }
 
+/* Incremento */
+dec { return token(yytext(), "DECREMENTO", yyline, yycolumn); }
+
 /* Falla */
 falla { return token(yytext(), "ESC_FALLA", yyline, yycolumn); }
 
@@ -172,13 +177,7 @@ sino { return token(yytext(), "ESTRUCTURA_SINO", yyline, yycolumn); }
 // Número erróneo
 0 {NumeroEntero}+ { return token(yytext(), "ERROR_1", yyline, yycolumn); }
 // Identificador error
-{NumeroEntero}+{Identificador} | 
-{Identificador}"("{Identificador} | 
-{Identificador}")"{Identificador} |
-{Identificador}"{"{Identificador} |
-{Identificador}"}"{Identificador} |
-{Identificador}"["{Identificador} |
-{Identificador}"]"{Identificador} { return token(yytext(), "ERROR_2", yyline, yycolumn); }
+{NumeroEntero}+{Identificador} { return token(yytext(), "ERROR_2", yyline, yycolumn); }
 . { return token(yytext(), "ERROR", yyline, yycolumn); }
 
 
