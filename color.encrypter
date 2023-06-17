@@ -1,3 +1,34 @@
 
-hola;;
-asaspersor
+//Comentario de inicio de programa
+
+//Declaración de variables de inicio (numeor, cadena)
+	
+	//Declaración simple
+	numero num1 = 5
+	
+	//Declaracion con expresiones aritmeticas
+	numero num2 = (5+6/5)
+
+	//Declaracion de cadenas
+	cadena cad1 = "cadena 1"
+
+//Asignacion de variables
+
+	//Asignacion simple
+	num1 = 6
+
+	//Asignacion con expresion aritmetica
+	num1 = 5+5
+
+	//Asignacion de concatenacion de cadenas
+	cad1 = cad1 + "HOLA"
+
+//Estrucura Zona
+
+zona zon1 {
+	//Declaracion de estatus y aspersores
+	aspdesactivars
+}
+
+
+//Comentario de fin de programa

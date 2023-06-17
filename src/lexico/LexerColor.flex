@@ -47,11 +47,10 @@ fecha { return textColor(yychar, yylength(), new Color(148, 58, 173)); }
 /* Número */
 {Numero} { return textColor(yychar, yylength(), new Color(35, 120, 147)); }
 
-/* Colores */
-#[{Letra}{Digito}]{6} { return textColor(yychar, yylength(), new Color(224, 195, 12)); }
+
 
 /* Operadores de agrupación */
-"("|")"|"{"|"}" { return textColor(yychar, yylength(), new Color(169, 155, 179)); }
+"("|")"|"{"|"}" { return textColor(yychar, yylength(), new Color(169, 255, 179)); }
 
 /* Signos de puntuación */
 ","|
@@ -66,7 +65,7 @@ temperatura |
 potencia |
 riego |
 horario |
-aspersor { return textColor(yychar, yylength(), new Color(17, 94, 153)); }
+aspersor  { return textColor(yychar, yylength(), new Color(17, 94, 153)); }
 
 /* Auto */
 auto { return textColor(yychar, yylength(), new Color(212, 129, 6)); }

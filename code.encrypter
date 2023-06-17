@@ -1,18 +1,22 @@
 
     numero hora_actual = 10 
 
-    si (hora_actual >= 6){
+    si (aspersor[1].humedad >= 6){
 
         duracionaspersor1 = 5
-        numero duracion_aspersor2 = 4
+        numero duracion_aspersor = 4
+}
+
+repetir (5){
+
+}
+
+
+repetirMientras (aspersor[1].potencia>5) {
 
 	si (hora_actual >= 6){
 
-si (hora_actual >= 6){
-
-        duracion_aspersor1 = 5
-        numero duracion_aspersor2 = 4}
-
-        duracion_aspersor1 = 5
-        numero duracion_aspersor2 = 4}
+        duracionaspersor1 = 5
+        numero duracion_aspersor = 4
+}
 }

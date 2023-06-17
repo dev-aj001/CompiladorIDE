@@ -44,7 +44,8 @@ NumeroReal = ({NumeroEntero}|-0)"."{Digito}+
 numero |
 bool |
 cadena |
-fecha { return token(yytext(), "TIPO_DATO", yyline, yycolumn); }
+fecha |
+hora { return token(yytext(), "TIPO_DATO", yyline, yycolumn); }
 
 /* constante */
 constante { return token(yytext(), "CONSTANTE", yyline, yycolumn); }
@@ -98,7 +99,7 @@ mientras { return token(yytext(), "MIENTRAS", yyline, yycolumn); }
 activar { return token(yytext(), "ACTIVAR", yyline, yycolumn); }
 
 /* Desactivar */
-desactivar { return token(yytext(), "DESACTIVAR", yyline, yycolumn); }
+desactivar { return token(yytext(), "DESACTIVAR" yyline, yycolumn); }
 
 /* Valores booleanos */
 verdadero |
@@ -130,6 +131,8 @@ riego { return token(yytext(), "STAT_RIEGO", yyline, yycolumn); }
 horario { return token(yytext(), "STAT_HORARIO", yyline, yycolumn); }
 
 
+/* Frecuencia */
+frecuencia {return token(yytext(), "FRECUENCIA", yyline, yycolumn);}
 
 /* Incremento */
 inc { return token(yytext(), "INCREMENTO", yyline, yycolumn); }

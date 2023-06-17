@@ -43,9 +43,7 @@ public class PanelTexto extends javax.swing.JPanel {
 
     private boolean mostrando = true;
     private Timer timerKeyReleased;
-    private String palabras[] = new String[]{"auto","aspersor","activar","desactivar","horario","frecuencia","zona","temporizador",
-        "humedad","temperatura","estado","potencia","falla","riego","numero","bool","cadena","constante","repetir","mientras","alerta",
-        "mensaje","si","intentar","asignar","fecha","verdadero","falso","inc"};
+    private String palabras[] = new String[]{"activar", "alerta", "aspersor", "asignar", "auto", "bool", "cadena", "constante", "desactivar", "estado", "falla", "fecha", "frecuencia", "falso", "humedad", "inc", "intentar", "mensaje", "mientras", "numero", "potencia", "repetir", "riego", "si", "temporizador", "temperatura", "verdadero", "zona"};
     private ArrayList<TextColor> textsColor;
     private UndoManager undoManager;
     
@@ -433,7 +431,7 @@ public class PanelTexto extends javax.swing.JPanel {
         Grammar gramatica = new Grammar(tokens, errors);
 
         // Eliminar errores léxicos
-        gramatica.delete(new String[]{"ERROR"}, 1, "Error Lexico {}: simbolo no perteneciente al lenguaje en la linea [#, %]");
+        //gramatica.delete(new String[]{"ERROR"}, 1, "Error Lexico {}: simbolo no perteneciente al lenguaje en la linea [#, %]");
         gramatica.delete(new String[]{"ERROR_2"}, 2, "Error Lexico {}: identificador mal definido en la linea [#, %]");
         gramatica.delete(new String[]{"ERROR_1"}, 3, "Error Lexico {}: numero mal definido en la linea [#, %]");
         
@@ -457,9 +455,11 @@ public class PanelTexto extends javax.swing.JPanel {
         gramatica.group("Arreglo", "(NUMERO_ENTERO|IDENTIFICADOR) (COMA ((NUMERO_ENTERO|IDENTIFICADOR)))* CORCHETE_C", true, 3, "Error sintáctico [{}] en la línea #: No hay corchete de apertura en el arreglo");
         gramatica.group("Arreglo", "CORCHETE_A CORCHETE_C", true, 4, "Error sintáctico [{}] en la línea #: No es posible declarar un arreglo vacío");
         
+        
+        
         gramatica.group("ArregloCompleto", "(IDENTIFICADOR|ASPERSOR) Arreglo", true);
         
-        gramatica.group("ESTATUS", "DESACTIVAR | ACTIVAR | STAT_HORARIO | STAT_RIEGO | STAT_POTENCIA | STAT_HUMEDAD | STAT_TEMPERATURA | STAT_ESTADO");
+        gramatica.group("ESTATUS", "DESACTIVAR | ACTIVAR | STAT_HORARIO | STAT_RIEGO | STAT_POTENCIA | STAT_HUMEDAD | STAT_TEMPERATURA | STAT_ESTADO | FRECUENCIA");
 
         gramatica.group("AspersorStat", "ArregloCompleto PUNTO (ESTATUS)", true);
         gramatica.group("AspersorStat", "ArregloCompleto PUNTO IDENTIFICADOR",true,  45, "Error sintáctico [{}] en la línea #: No es un aun estatus");
@@ -472,6 +472,16 @@ public class PanelTexto extends javax.swing.JPanel {
         gramatica.delete(new String[]{"CORCHETE_A", "CORCHETE_C"}, 5, "Error sintáctico [{}] en la línea #: El corchete [] debe seguir de un arreglo");
         //FUNCIONA^^
         
+        gramatica.group("ERROR_LEX1", "ERROR");
+        
+        gramatica.group("EstrucutraMSJ", "OUT_MENSAJE PARENTESIS_A Valor PARENTESIS_C");
+        gramatica.group("EstrucutraMSJ", "OUT_MENSAJE PARENTESIS_A ERROR_LEX1 PARENTESIS_C", 61, "Error sintáctico [{}] en la línea #: Valor erroneo para el mensaje");
+        gramatica.group("EstrucutraMSJ", "OUT_MENSAJE PARENTESIS_A (ERROR|Valor) PARENTESIS_C", 66, "Error sintáctico [{}] en la línea #: Valor erroneo para el mensaje");
+        gramatica.group("EstrucutraMSJ", "OUT_MENSAJE PARENTESIS_A (ERROR|Valor)", 67, "Error sintáctico [{}] en la línea #: Falta parentesis de cierre en el mensaje");
+        gramatica.group("EstrucutraMSJ", "OUT_MENSAJE (ERROR|Valor) PARENTESIS_C", 69, "Error sintáctico [{}] en la línea #: Falta parentesis de apertura en el mensaje");
+        gramatica.group("EstrucutraMSJ", "OUT_MENSAJE (ERROR|Valor) ", 68, "Error sintáctico [{}] en la línea #: Para mensajes debe difinir el valor entre parentesis");
+        
+        gramatica.delete("ERROR_LEX1", 1, "Error Lexico {}: simbolo no perteneciente al lenguaje en la linea [#, %]");
         // ------------------------------------------------------------------------------------------------
         // Agrupación de estructuras de control repetitiva
         gramatica.group("EstructuraRepetitiva", "REPETIR");
@@ -479,10 +489,10 @@ public class PanelTexto extends javax.swing.JPanel {
         gramatica.group("EstructuraRepetitivaCompleta", "EstructuraRepetitiva PARENTESIS_A (NUMERO_ENTERO|IDENTIFICADOR) PARENTESIS_C ", true, ERCProducciones);
 
         // Eliminación de estructuras de control repetitivas incompletas
-        gramatica.group("EstructuraRepetitivaCompleta", "EstructuraRepetitiva PARENTESIS_A PARENTESIS_C", true, 40, "Error sintáctico [{}] en la línea #: Falta de parámetros en el valor");
-        gramatica.group("EstructuraRepetitivaCompleta", "EstructuraRepetitiva PARENTESIS_A Valor PARENTESIS_C", true, 40, "Error sintáctico [{}] en la línea #: Solo se puede definir un valor de tipo entero");
-        gramatica.group("EstructuraRepetitivaCompleta", "EstructuraRepetitiva (NUMERO_ENTERO|IDENTIFICADOR|Valor)? PARENTESIS_C", true, 41, "Error sintáctico [{}] en la línea #: Falta paréntesis de apertura en la estructura repetitiva");
-        gramatica.group("EstructuraRepetitivaCompleta", "EstructuraRepetitiva PARENTESIS_A (NUMERO_ENTERO|IDENTIFICADOR|Valor)?", true, 42, "Error sintáctico [{}] en la línea #: Falta paréntesis de cierre en la estructura repetitiva");
+        gramatica.group("EstructuraRepetitivaCompletaE", "EstructuraRepetitiva PARENTESIS_A PARENTESIS_C", true, 40, "Error sintáctico [{}] en la línea #: Falta de parámetros en el valor");
+        gramatica.group("EstructuraRepetitivaCompletaE", "EstructuraRepetitiva PARENTESIS_A Valor PARENTESIS_C", true, 40, "Error sintáctico [{}] en la línea #: Solo se puede definir un valor de tipo entero");
+        gramatica.group("EstructuraRepetitivaCompletaE", "EstructuraRepetitiva (NUMERO_ENTERO|IDENTIFICADOR|Valor)? PARENTESIS_C", true, 41, "Error sintáctico [{}] en la línea #: Falta paréntesis de apertura en la estructura repetitiva");
+        gramatica.group("EstructuraRepetitivaCompletaE", "EstructuraRepetitiva PARENTESIS_A (NUMERO_ENTERO|IDENTIFICADOR|Valor)?", true, 42, "Error sintáctico [{}] en la línea #: Falta paréntesis de cierre en la estructura repetitiva");
 
         gramatica.delete("EstructuraRepetitiva", 43, "Error sintáctico [{}] en la línea #: La estructura de repetitiva [] no está declarada correctamente");
 
@@ -506,6 +516,7 @@ public class PanelTexto extends javax.swing.JPanel {
         gramatica.group("Valor", "PARENTESIS_A (Valor|IDENTIFICADOR) PARENTESIS_C",true);
         gramatica.group("OperacionAritmetica", "((Valor|IDENTIFICADOR) (OP_ARITMETICO (Valor|IDENTIFICADOR))+) | PARENTESIS_A ((Valor|IDENTIFICADOR) (OP_ARITMETICO (Valor|IDENTIFICADOR))+) PARENTESIS_C");
         gramatica.group("OperacionAritmetica", "(OperacionAritmetica (OP_ARITMETICO (OperacionAritmetica|Valor))+)");
+        //gramatica.group("OperacionAritmetica", "(OperacionAritmetica (OP_ARITMETICO (OperacionAritmetica|Valor))+)");
         
         
         // Eliminación de operaciones aritméticas con arreglos
@@ -528,11 +539,11 @@ public class PanelTexto extends javax.swing.JPanel {
         //gramatica.group("Inicializar", "TIPO_DATO IDENTIFICADOR Err_OperadorIgual Valor", true, 15, "Error sintáctico [{}] en la línea #: El operador '=' es incorrecto, para inicializar utiliza '->'");
 
         // Asignaciones a variables
-        gramatica.group("Asignar", "(IDENTIFICADOR|ESTATUS) OP_ASIG (Valor|ArregloCompleto|IDENTIFICADOR|Arreglo)", true, AsignacionProducciones);
+        gramatica.group("Asignar", "(IDENTIFICADOR| ArregloCompleto | ESTATUS | STAT_POTENCIA | STAT_RIEGO | STAT_HORARIO) OP_ASIG (Valor|ArregloCompleto|IDENTIFICADOR|Arreglo)", true, AsignacionProducciones);
         
         // Asignaciones incompletas
-        gramatica.group("Asignar", "(IDENTIFICADOR|ESTATUS) OP_ASIG", true, 16, "Error sintáctico [{}] en la línea #: Faltó asignar un valor");
-        gramatica.group("Asignar", "(IDENTIFICADOR|ESTATUS) (Valor|Arreglo|IDENTIFICADOR)", true, 17, "Error sintáctico [{}] en la línea #: Falta el operador de asignacion '='");
+        gramatica.group("Asignar", "(IDENTIFICADOR| ArregloCompleto | ESTATUS | STAT_POTENCIA | STAT_RIEGO | STAT_HORARIO) OP_ASIG", true, 16, "Error sintáctico [{}] en la línea #: Faltó asignar un valor");
+        gramatica.group("Asignar", "(IDENTIFICADOR| ArregloCompleto | ESTATUS | STAT_POTENCIA | STAT_RIEGO | STAT_HORARIO) (Valor|Arreglo|IDENTIFICADOR)", true, 17, "Error sintáctico [{}] en la línea #: Falta el operador de asignacion '='");
 
         // Eliminación de declaraciones de variables incompletas
         gramatica.delete("TIPO_DATO", 20, "Error sintáctico [{}] en la línea #: No se declaro correctamente");
@@ -541,10 +552,16 @@ public class PanelTexto extends javax.swing.JPanel {
         
         // -----------------------------------------------------------------------------------------------
         // Agrupación de estructuras de control condicional
+        
+        
+        gramatica.group("EstrucuturaZonas", "ZONA IDENTIFICADOR");
+        
+        
         gramatica.group("EstructuraCondicional", "ESTRUCTURA_SI", true);
         
         gramatica.group("Valor_Condicion", "Valor OP_RELACIONAL Valor");
-        gramatica.group("Valor_Condicion", "Valor OP_ASIG Valor", 51, "Error confundio '=' con '=='");
+        gramatica.group("Valor_Condicion", "Valor OP_ASIG Valor", 51, "Error sintáctico [{}] en la línea #: Error confundio '=' con '=='");
+        gramatica.delete("OP_ASIG", 19, "Error sintáctico [{}] en la línea #: No se esperaba encontrar '=' o No se encuentra dento de una asignación");
         
 //        gramatica.group("Valor_Condicion_Par", "PARENTESIS_A Valor_Condicion PARENTESIS_C");
 //        gramatica.group("Valor_Condicion_Par", "Valor_Condicion PARENTESIS_C", 52, "Falta parentesis de apertura");
@@ -582,7 +599,6 @@ public class PanelTexto extends javax.swing.JPanel {
         gramatica.delete("EstructuraCondicional", 36, "Error sintáctico [{}] en la línea #: La estructura de condicional [] no está declarada correctamente");
         
         
-        gramatica.delete("OP_ASIG", 19, "Error sintáctico [{}] en la línea #: No se esperaba encontrar '=' o No se declaro correctamente");
         
         
         
@@ -594,11 +610,11 @@ public class PanelTexto extends javax.swing.JPanel {
 
         gramatica.delete("OperadorUnario",56,"Error sintáctico [{}] en la línea #: El operador unario esta mal definido sintacticamente");
         // Agrupación de sentencias
-        gramatica.group("Sentencias", "(ArregloCompleto | Indice | Asignar | Inicializar | OperacionAritmetica | Valor)+");
+        gramatica.group("Sentencias", "(EstructuraRepetitivaCompletaE | EstrucutraMSJ | ArregloCompleto | Indice | Asignar | Inicializar )+");
         
         // -------------------------------------------------------------------------------------------------------
         // Agrupación de estructuras de control
-        gramatica.group("EstructuraControlCompleta", "(EstructuraRepetitivaCompleta | EstructuraCondicionalCompleta | EstructuraRepetirMientrasCompleta)");
+        gramatica.group("EstructuraControlCompleta", "( EstrucuturaZonas | EstructuraRepetitivaCompleta | EstructuraCondicionalCompleta | EstructuraRepetirMientrasCompleta)");
         
         gramatica.loopForFunExecUntilChangeNotDetected(() -> {
             // Eliminar estructuras de control que contienen inicializaciones
@@ -615,7 +631,7 @@ public class PanelTexto extends javax.swing.JPanel {
             gramatica.group("EstructuraControlCompletaLASLC", "EstructuraControlCompleta (Sentencias)?", true, 92, "Error sintáctico [{}] en la línea #: Falta la llave de apertura en la estructura de control");
             gramatica.group("Sentencias", "(Sentencias | EstructuraControlCompletaLASLC)+", true);
         });
-        //gramatica.show();
+        gramatica.show();
         
     }
     
