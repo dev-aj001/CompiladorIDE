@@ -1,6 +1,6 @@
 # CompiladorIDE 
 Este proyecto fue realizado para la materia de Lenguajes y Automatas 1 de la carrera de ingenieria en sistemas computacionales.
-<img src="[ruta_de_la_imagen](https://github.com/dev-aj001/CompiladorIDE/assets/64895977/951a4106-b1a5-4501-9df5-15657736148f)" alt="Texto alternativo" width="300" height="200">
+<img src="https://github.com/dev-aj001/CompiladorIDE/assets/64895977/951a4106-b1a5-4501-9df5-15657736148f" alt="Texto alternativo" width="300" height="200">
 
 ComiladorIDE es un compilador (incompleto), hasta el momento cuenta con el analisis lexico y sintactico para el lenguaje de programacion asperlang.
 Estas fases de compilacion fueron realizadas con las librerias Jflex y CompilerTools.
