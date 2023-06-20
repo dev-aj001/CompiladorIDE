@@ -93,7 +93,8 @@ public class Main extends javax.swing.JFrame {
         txtOutput.setEditable(false);
         listFile = new ArrayList<File>();
         listAreaTexto = new ArrayList<PanelTexto>();
-        currentFile = new File("C:/Users/jairi/Documents/Compilador normal/Compilador/Programas prueba");
+        //"C:/Users/jairi/Documents/Compilador normal/Compilador/Programas prueba"
+        currentFile = new File("");
         actualizarFile(currentFile);
         ts = new TS();
         
